@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <meta name="author" content="Enrico Toledo">
+  <title>jogo da velha</title>
+ <!-- Bootstrap  -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iKJE9e3GGtR5KjKG5ceO3QqI69XgtST0l0rDIIuY7qDh6HgB9D" crossorigin="anonymous">
+   <!-- CSS  -->
+  <link rel="stylesheet" href="css/mystyle.css">
+  <style>
+    .square {
+      width: 100px;
+      height: 100px;
+      font-size: 2em;
+      text-align: center;
+      line-height: 100px;
+      cursor: pointer;
+      border: 2px solid #000;
+    }
+
+    .square:hover {
+      background-color: #f8f9fa;
+    }
+
+    .winner {
+      background-color: #28a745;
+      color: #fff;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .centered {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+  </style>
+</head>
+
+
+
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-lg fixed-top bg-cor-que-eu-quero">
+            <section class="container py-1">
+                <a class="navbar-brand" href="#">
+                    <img class="img-fluid" width="40em" src="images/img.jgdavelha.png" alt="sem imagem">
+                    <span>games low</span>
+                </a>
+
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-items"
+                    aria-controls="navbar-items" aria-expanded="false" aria-label="Navegação diferente">
+                    <i class="bi bi-filter-square-fill"></i>
+                </button>
+
+                <section class="collapse navbar-collapse" id="navbar-items">
+                    <ul class="navbar-nav me-auto mb-0 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#historia">Dicas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#sobre">Contato</a></li>
+                    </ul>
+                </section>
+            </section>
+        </nav>
+    </header>
+
+
+</body>
+
+
+
+<body>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="centered">
+        <div id="game-board" class="d-flex flex-wrap">
+          <!-- os quadrados tão add aq-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-eaQyj/6beD8pVnRTKTJ4ZI5G9XkoMhhA5TlPA/5C7OMQjJ4Np1lwiGQQIX99Qejl" crossorigin="anonymous"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const board = document.getElementById('game-board');
+    let currentPlayer = 'X';
+    let gameBoard = [
+      ['', '', ''],
+      ['', '', ''],
+      ['', '', '']
+    ];
+
+    // grade de 3x3
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const square = document.createElement('div');
+        square.classList.add('border', 'border-dark', 'square');
+        square.dataset.row = i;
+        square.dataset.col = j;
+        square.addEventListener('click', handleSquareClick);
+        board.appendChild(square);
+      }
+    }
+
+    function handleSquareClick(event) {
+      const square = event.target;
+
+      // ver se o quadrado ta vazio 
+      if (!square.textContent) {
+        const row = parseInt(square.dataset.row);
+        const col = parseInt(square.dataset.col);
+
+        square.textContent = currentPlayer;
+        gameBoard[row][col] = currentPlayer;
+
+        // ver se tem vencedor ou deu empate
+        if (checkForWinner()) {
+          setTimeout(() => {
+            alert(`Player ${currentPlayer} wins!`);
+            resetGame();
+          }, 100);
+        } else if (isBoardFull()) {
+          setTimeout(() => {
+            alert('It\'s a tie!');
+            resetGame();
+          }, 100);
+        } else {
+          // mudar para outro jogador
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+      }
+    }
+
+    function checkForWinner() {
+      // analisar linhas, colunas e diagonais para ver se tem vencedor
+      return (
+        checkRows() ||
+        checkColumns() ||
+        checkDiagonal() ||
+        checkAntiDiagonal()
+      );
+    }
+
+    function checkRows() {
+      for (let i = 0; i < 3; i++) {
+        if (
+          gameBoard[i][0] !== '' &&
+          gameBoard[i][0] === gameBoard[i][1] &&
+          gameBoard[i][1] === gameBoard[i][2]
+        ) {
+          highlightWinnerSquares(i, 0, i, 1, i, 2);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function checkColumns() {
+      for (let j = 0; j < 3; j++) {
+        if (
+          gameBoard[0][j] !== '' &&
+          gameBoard[0][j] === gameBoard[1][j] &&
+          gameBoard[1][j] === gameBoard[2][j]
+        ) {
+          highlightWinnerSquares(0, j, 1, j, 2, j);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function checkDiagonal() {
+      if (
+        gameBoard[0][0] !== '' &&
+        gameBoard[0][0] === gameBoard[1][1] &&
+        gameBoard[1][1] === gameBoard[2][2]
+      ) {
+        highlightWinnerSquares(0, 0, 1, 1, 2, 2);
+        return true;
+      }
+      return false;
+    }
+
+    function checkAntiDiagonal() {
+      if (
+        gameBoard[0][2] !== '' &&
+        gameBoard[0][2] === gameBoard[1][1] &&
+        gameBoard[1][1] === gameBoard[2][0]
+      ) {
+        highlightWinnerSquares(0, 2, 1, 1, 2, 0);
+        return true;
+      }
+      return false;
+    }
+
+    function highlightWinnerSquares(row1, col1, row2, col2, row3, col3) {
+      const squares = document.querySelectorAll('.square');
+      squares.forEach(square => {
+        const squareRow = parseInt(square.dataset.row);
+        const squareCol = parseInt(square.dataset.col);
+        if (
+          (squareRow === row1 && squareCol === col1) ||
+          (squareRow === row2 && squareCol === col2) ||
+          (squareRow === row3 && squareCol === col3)
+        ) {
+          square.classList.add('winner');
+        }
+      });
+    }
+
+    function isBoardFull() {
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (gameBoard[i][j] === '') {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function resetGame() {
+      const squares = document.querySelectorAll('.square');
+      squares.forEach(square => {
+        square.textContent = '';
+        square.classList.remove('winner');
+      });
+      currentPlayer = 'X';
+      gameBoard = [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', '']
+      ];
+    }
+  });
+</script>
+<script src="js/myscript.js"></script>
+
+</body>
+</html>
